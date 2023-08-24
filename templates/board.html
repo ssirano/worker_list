@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board</title>
+    <!-- CSS links -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        .fixed-buttons {
+            position: absolute;
+            /* position을 fixed에서 absolute로 변경 */
+            bottom: 0;
+            /* 하단에 위치하도록 설정 */
+            right: 0;
+            /* 오른쪽에 위치하도록 설정 */
+            z-index: 1000;
+        }
+
+        .fixed-buttons>.btn {
+            margin-left: 5px;
+            margin-bottom: 5px;
+            /* 버튼 하단 간격 추가 */
+        }
+    </style>
+
+    <style>
+        #home-banner {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        #home-banner:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <div class="board-container">
+        <div class="container mt-5">
+            <table class="table table-bordered"> <!-- 여기를 수정했습니다. -->
+                <thead>
+                    <tr>
+                        <th colspan="6">
+                            <a id="home-banner" href="/">Home</a>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th><input type="checkbox"></th>
+                        <th>#</th>
+                        <th><a href="{{ url_for('index', sort_by='name', page=1) }}">Name</a></th>
+                        <th><a href="{{ url_for('index', sort_by='age', page=1) }}">Age</a></th>
+                        <th>Phone</th>
+                        <th><a href="{{ url_for('index', sort_by='rating', page=1) }}">Rating</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr data-id="{{ item.id }}">
+                        <td><input type="checkbox"></td>
+                        <td>{{ loop.index + (page-1)*15 }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.age }}</td>
+                        <td>{{ item.phone }}</td>
+                        <td>
+                            {% for _ in range(item.full_stars) %}
+                            <i class="fas fa-star"></i>
+                            {% endfor %}
+                            {% if item.half_star %}
+                            <i class="fas fa-star-half-alt"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- 추가하기 모달 -->
+            <div class="modal" id="addModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">새로운 사용자 추가</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addForm">
+                                <div class="form-group">
+                                    <label for="addName">이름:</label>
+                                    <input type="text" class="form-control" id="addName" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="addAge">나이:</label>
+                                    <input type="number" class="form-control" id="addAge" name="age" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="addPhone">전화번호:</label>
+                                    <input type="text" class="form-control" id="addPhone" name="phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="addRating">평점:</label>
+                                    <input type="number" step="0.5" class="form-control" id="addRating" name="rating"
+                                        required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">추가</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 수정하기 모달 -->
+            <div class="modal" id="editModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">사용자 정보 수정</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editForm">
+                                <input type="hidden" id="editId" name="id">
+                                <div class="form-group">
+                                    <label for="editName">이름:</label>
+                                    <input type="text" class="form-control" id="editName" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editAge">나이:</label>
+                                    <input type="number" class="form-control" id="editAge" name="age" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editPhone">전화번호:</label>
+                                    <input type="text" class="form-control" id="editPhone" name="phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editRating">평가:</label>
+                                    <input type="number" step="0.5" class="form-control" id="editRating" name="rating"
+                                        required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">저장</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center my-3">
+                <div>
+                    <div id="pagination">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {% for i in range(1, total_pages+1) %}
+                                <li class="page-item {{ 'active' if i == page else '' }}">
+                                    <a class="page-link" href="{{ url_for('index', sort_by=sort_by, page=i) }}">{{ i
+                                        }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <!-- 검색 드롭다운 및 입력창 -->
+                <div class="d-flex justify-content-center mb-3">
+                    <select id="searchColumn" class="form-control" style="width: auto;">
+                        <option value="name">Name</option>
+                        <option value="age">Age</option>
+                        <option value="rating">Rating</option>
+                    </select>
+                    <input type="text" id="searchText" class="form-control" placeholder="Search"
+                        style="max-width: 200px;">
+
+                    <!-- 검색 버튼. 클릭하면 검색이 수행됩니다. -->
+                    <button class="btn btn-primary search-btn" onclick="performSearch()">Search</button>
+                    <!-- 여기에 onclick 이벤트 추가 -->
+                </div>
+                <!-- 추가하기 & 수정하기 버튼 -->
+                <div>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addModal">추가하기</button>
+                    <button class="btn btn-secondary" data-toggle="modal" data-target="#editModal"
+                        id="editButton">수정하기</button>
+                    <button class="btn btn-danger" id="deleteButton">삭제하기</button>
+
+                </div>
+            </div>
+        </div>
+        <script>
+            function performSearch() {
+                const column = document.getElementById("searchColumn").value;
+                const query = document.getElementById("searchText").value;
+                location.href = `/?searchColumn=${column}&searchText=${query}`;
+            }
+        </script>
+
+</body>
+
+</html>

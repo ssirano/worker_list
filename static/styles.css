@@ -1,0 +1,14 @@
+#home-banner {
+    display: inline-block;
+    background-color: #f8f8f8;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #333;
+    margin-right: 10px;
+}
+
+.table tr {
+    height: 50px;
+    width : 50px;
+}

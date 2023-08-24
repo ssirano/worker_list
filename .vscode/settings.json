@@ -1,0 +1,7 @@
+{
+    "python.linting.flake8Enabled" : true,
+    "flake8.args": [
+        "--max-line-length=88"
+    ],
+    "python.analysis.typeCheckingMode": "basic"
+}
